@@ -12,7 +12,7 @@ DWORD thread_entry_point(void *ptr)
 	return 0;
 }
 
-__declspec(dllexport) void tls_dll_entry_point(printf_func *printf)
+EXTERN_C __declspec(dllexport) void tls_dll_entry_point(printf_func *printf)
 {
 	test.foo = 5;
 	test.bar = 6;
@@ -20,4 +20,16 @@ __declspec(dllexport) void tls_dll_entry_point(printf_func *printf)
 	HANDLE thread = CreateThread(NULL, 0, thread_entry_point, (void *)printf, 0, NULL);
 	WaitForSingleObject(thread, INFINITE);
 	printf("On thread %d in DLL test = { foo = %d, bar = %d}\n", GetCurrentThreadId(), test.foo, test.bar);
+}
+
+// The entry point for this DLL.
+EXTERN_C BOOL WINAPI _DllMainCRTStartup(
+	HINSTANCE instance,
+	DWORD     reason,
+	LPVOID    reserved)
+{
+	(void)instance;
+	(void)reason;
+	(void)reserved;
+	return 1;
 }
