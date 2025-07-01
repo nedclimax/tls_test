@@ -5,10 +5,7 @@
 #include <stdint.h>
 #include <Windows.h>
 
-typedef struct Test {
-	int64_t foo;
-	int64_t bar;
-} Test;
+#include "tls_test.h"
 
 __declspec(thread) Test test;
 
@@ -42,5 +39,8 @@ EXTERN_C int __stdcall mainCRTStartup(void)
 	HANDLE thread = CreateThread(NULL, 0, thread_entry_point, NULL, 0, NULL);
 	WaitForSingleObject(thread, INFINITE);
 	my_printf("On thread %d test = { foo = %d, bar = %d}\n", GetCurrentThreadId(), test.foo, test.bar);
+	HMODULE tls_test_module = LoadLibraryA("tls_dll_test.dll");
+	tls_dll_entry_func *entry_func = (tls_dll_entry_func *)GetProcAddress(tls_test_module, "tls_dll_entry_point");
+	entry_func(my_printf);
 	return 0;
 }
